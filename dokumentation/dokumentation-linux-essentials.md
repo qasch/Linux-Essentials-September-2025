@@ -207,3 +207,57 @@ unalias lsa
 Definierte Aliase können mit dem Kommando `unalias` wieder gelöscht werden.
 
 Die Opione `-a` löscht alle Aliase (`unalias -a`).
+
+### Pattern Matching
+
+Ein *Pattern* ist ein *Muster*, bzw. ein *Platzhalter* oder *Wildcard* welches auf eine Zeichenfolge passt, so dass wir damit z.B. nach Dateien bzw. Pfadangaben suchen können (mit entsprechenden Kommandos).
+
+Wir können in einem *Pattern* bestimmte Sonderzeichen verwenden, um dieses allgemeingültiger zu machen:
+
+*Globbing Characters:*
+
+- `*` (*Asterisk*) -> Steht für beliebige Zeichen, welche beliebig oft vorkommen können (auch keinmal)
+- `?` -> Steht für jedes beliebige Zeichen, welches **exakt** einmal vorkommt
+
+Weitere Möglichkeiten für Pattern Matching:
+
+- `!(pattern)` Exkludiert das angegebene Pattern (in dem Pattern dürfen auch wieder die oben angegebenen *Globbing Characters* vorkommen
+
+Beispiele:
+```bash
+rm *.jpg       # löscht alle Dateien mit der Endung .jpg
+ls datei?.txt  # zeigt nur Dateien an, bei denen nach der Zeichenfolge datei noch ein weiteres beliebiges Zeichen folgt und die die Endung .txt haben
+mv !(o*) ../somdir/    # verschiebt alle Dateien des aktuellen Verzeichnisses nach ../somedir, ausser Dateien, die mit einem o beginnen
+```
+## Escaping / Maskieren von Sonderzeichen
+Bestimmte Zeichen haben eine Sonderbedeutung für die BASH. Das wohl wichtigste Sonderzeichen ist das *Leerzeichen*: 
+
+> Das Leerzeichen ist ein Sonderzeichen. Das Leerzeichen ist das **Trennzeichen**. Das Trennzeichen ist elementar wichtig für die Shell, um z.B. ein Kommando von seinen Optionen und Argumenten unterscheiden zu können.
+
+Weitere Sonderzeichen sind:
+```bash
+*       # Asterisk
+?       
+#       # Kommentarzeichen
+$       # Subsitution
+!       # History Expansion
+\       # Backslash
+'
+"
+```
+Sonderzeichen können durch das sogenannte *Escaping* oder *Maskieren* bzw. *Quoting* ihrer Sonderbedeutung entledigt werden, so dass sie von der Shell wie reguläre Satzzeichen und nicht wie Sonderzeichen behandelt werden.
+
+Zum Maskieren gibt es drei verschiedene Wege:
+
+1. Maskieren mit dem Backslash `\`: Der Backslash maskiert (nur) das **direkt darauffolgende** Zeichen
+
+2. Maskieren mit einfachen Hochkommata `'`: Einfache Hochkommata maskieren **jedes** in ihnen eingeschlossene Zeichen.
+
+3. Maskieren mit doppelten Hochkommata `"`: Doppelte Hochkommata maskieren **fast** alle in ihnen eingeschlossene Zeichen, nicht aber
+
+- `$` (Dollar) - Variablensubstitution funktioniert weiterhin
+- `` ` `` (Backticks) - Kommandosubstitution funktioniert weiterhin
+- `\` (Backslash) - behält seine Escape-Funktion
+- `!` (Ausrufezeichen) - History Expansion in bash (je nach Einstellung)
+
+
