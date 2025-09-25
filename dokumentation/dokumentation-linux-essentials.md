@@ -433,6 +433,105 @@ Die einzelnen Versionen der Release basierten Distributionen werden über einen 
 
 Es gibt sogar Versionen von Ubuntu und RHEL, die über mehr als 10 Jahre lang (Sicherheits-)Updates erhalten (*ELS - Extended Lifecycle Support* bzw. *ESM - Extended Security Maintenance*), dann aber auch (teilweise) kostenpflichtig sind.
 
+# Textströme und Standardkanäle
+
+Es gibt drei Standardkanäle unter Linux:
+
+| Kanalbezeichnung | Filedescriptor | Nummer |
+| ---------------- | -------------- | ------ |
+| *Standareingabekanal*  | `stdin` | 0 |
+| *Standardausgabekanal*|  `stdout` | 1 |
+| *Standardfehlerkanal*  | `stderr` | 2 |
+Jeder Prozess der gestartet wird, wird mit diesen drei Standardkanälen verbunden. Über diese Kanäle erhält der Prozess Daten und gibt sie auch wieder aus. So können Ein- und Ausgaben unabhängig voneinander verarbeitet und auch umgeleitet werden.
+
+Die Kanäle jedes Prozesses, der in einer Shell gestartet wird, sind automatisch mit der Shell verbunden.
+
+Durch dieses Konzept können wir durch die Kombination simpler Kommandos komplexe Aufaben lösen (-> *Kommandopipelines*) 
+
+Wir könne so z.B. auch Ausgaben von Kommandos in Dateien umleiten (-> *Redirects*).
+
+## KISS Prinzip
+
+- "Keep it stupid simple"
+- "Keep it super simple"
+- "Keep it simple, stupid!"
+
+## UNIX Philosophie
+Die Unix-Philosophie ist ein Satz von Prinzipien für Software-Design, die ursprünglich in den 1970er Jahren mit dem Unix-Betriebssystem entwickelt wurden. Sie betont Einfachheit, Modularität und Wiederverwendbarkeit.
+
+Douglas McIlroy, der Erfinder der Unixpipes, fasste die Philosophie folgendermaßen zusammen:
+
+- Schreibe Computerprogramme so, dass sie nur eine Aufgabe erledigen und diese gut machen.
+- Schreibe Programme so, dass sie zusammenarbeiten.
+- Schreibe Programme so, dass sie Textströme verarbeiten, denn das ist eine universelle Schnittstelle.
+
+> "Write programs that do one thing and do it well."
+
+### Redirects
+
+Mit Redirects kann die der Standardausgabekanal oder der Standardfehlerkanal in eine **Datei** umgeleitet werden. Es gibt zwei Arten von Redirects:
+
+- `>` - einfacher Redirect: Erstellt eine Datei falls nicht vorhanden, **leert** eine bereits vorhandene Datei
+- `>>` - doppelter Redirect: Erstellt eine Datei falls nicht vorhanden, **hängt Ausgabe an**
+
+#### Umleitung des Standareingabekanals
+```bash
+echo huhu 1> hallo.txt   # die 1 gibt hier die Kanalnummer an
+echo huhu 1>> hallo.txt  # die 1 gibt hier die Kanalnummer an
+echo huhu > hallo.txt    # kann bei stdout auch weggelassen werden
+```
+```bash
+ls -l /etc > ls-ausgabe.txt
+ls -l /etc >> ls-ausgabe.txt
+```
+#### Umleitung des Standardfehlerkanals
+```bash
+ls mich-gibts-nicht  2> ls-fehler.txt     # hier muss die 2 stehen, da wir stderr umleiten
+ls mich-gibts-nicht  2>> ls-fehler.txt    # hier muss die 2 stehen, da wir stderr umleiten
+```
+#### Umleitung beider Kanäle
+##### in separate Dateien
+```bash
+ls mich-gibts/ mich-gibts-nicht/ > ergebnis.txt 2>fehler.txt
+```
+##### in die gleiche Datei
+```bash
+ls mich-gibts/ mich-gibts-nicht/ > ausgabe-und-fehler.txt 2>&1
+```
+>[!NOTE]
+> Das `&` gibt hier an, dass wir einen *Kanal*/*Filedescriptor* meinen, ansonsten würden die Fehler in eine Datei mit dem Namen `1` umgeleitet werden.
+
+```bash
+ls mich-gibts/ mich-gibts-nicht/ &> ausgabe-und-fehler.txt
+```
+>[!NOTE]
+> Verkürzte Schreibweise
+
+## Kommandopipelines
+Kommandopipelines sind ein mächtiges Werkzeug, mit dem sich erst die ganze Stärke der Kommandozeile nutzen lässt.
+
+Syntax:
+```bash
+<kommando1> | <kommando2>
+```
+Mit der *Pipe* (`|`) wird `stdout` von `<kommando1>` mit `stdin` von `<kommando2>` verbunden, so dass `<kommando2>` die Ausgabe von `<kommando1>` entgegenehmen und weiterverarbeiten kann.
+
+Wir können durchaus mehrere Kommandos mit Pipes verbinden, sog. *Pipelines*. Die Anzahl ist einzig durch Hardware-Resourcen beschränkt.
+
+```bash
+<kommando1> | <kommando2> | <kommando3> | <kommando4> | <kommando5> ...
+```
+### Beispiele:
+**Konzept der UNIX Philosophie und Nutzung der Pipe**
+
+`ls` kann super gut den Inhalt von Verzeichnissen anzeigen, bei grösseren Verzeichnissen müssen wir aber (falls überhaupt möglich) die Maus nutzen, um den Anfang der Ausgabe sehen zu können. 
+
+Wir leiten die Ausgabe also an den *Pager* `less` weiter, der super gut darin ist, Textströme seitenweise anzuzeigen, darin zu scrollen, zu suchen usw.
+```bash
+ls -l /etc/ | less       # der Output von ls -l wird an den Pager less geleitet
+```
+
+
 
 
 
