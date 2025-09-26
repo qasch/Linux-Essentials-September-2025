@@ -530,10 +530,118 @@ Wir leiten die Ausgabe also an den *Pager* `less` weiter, der super gut darin is
 ```bash
 ls -l /etc/ | less       # der Output von ls -l wird an den Pager less geleitet
 ```
+**Nur die Usernamen der realen Benutzer anzeigen lassen**
 
+Wir filtern die Datei `/etc/passwd` zuerst nach den Zeilen mit den Usern, die eine Shell (`/bin/bash`, `/bin/sh`, `/bin/zsh` o.ä.) zugewiesen haben. Anschliessend nutzen wir `cut`, um uns nur das erste Feld mit den Usernamen ausgeben zu lassen.
 
+Das Dollarzeichen `$` ist eil eines *regulären Ausdrucks* und steht für das Ende einer Zeile (mehr dazu z.B. in der Manpage von `grep` oder unter `man regex`).
+```bash
+grep "sh$" /etc/passwd | cut -d: -f1
+```
+**Anzahl der realen User ausgeben lassen**
+```bash
+grep "sh$" /etc/passwd | cut -d: -f1 | wc -l
+```
+> [!NOTE]
+> Pipelines bauen wir am besten Stück für Stück auf, wie in einem Baukastensystem. Wir untersuchen die Ausgabe eines Kommandos, nutzen die History um das Kommando erneut aufzurufen, hängen eine Pipe dran, lassen uns das Ergebnis anzeigen, nutzen die History usw.
 
+### `grep`
 
+Mit `grep` können wir Textströme zeilenweise filtern.
+
+`grep` nimmt ein `PATTERN`, also einen Suchbegriff bzw. genauer gesagt einen *Regulären Ausdruck* entgegen und gibt nur die Zeilen eines Textstroms aus, in denen dieses `PATTERN` vorkommt.
+
+`grep` steht für *Global Regular Expression Print*
+
+#### Beispiele:
+##### nur die Benutzerkonfiguration von root ausgeben
+```bash
+grep "root" /etc/passwd     
+```
+##### -i --ignore-case 
+`grep` ignoriert Gross-und Kleinschreibung
+
+hier: sowohl alias als auch Alias wird gefunden
+```bash
+grep -i alias ~/.bashrc
+```
+##### -v --invert 
+`grep` gibt all das aus, was *nicht* auf das PATTERN passt.
+
+hier: Ausgabe aller Benutzerkonfigurationen, die *nicht* die BASH nutzen
+```bash
+grep -v bash /etc/passwd
+```
+##### -c --count 
+`grep` zählt die Ergebnisse, hier also die Anzahl der Benutzer, die BASH als Login-Shell nutzen, es wird nur die Anzahl ausgegeben, nicht die Zeilen, die PATTERN enthalten
+```bash
+grep -c bash /etc/passwd    
+```
+##### -r --recursive 
+`grep` kann so auch ganze Verzeichnisse durchsuchen
+
+hier: gesamtes Home-Verzeichnis von tux nach etwas zu aliasen durchsuchen
+```bash
+grep -r alias /home/tux 
+```
+### `cut`
+
+Mit `cut` können wir Textströme **spaltenweise** filtern. 
+
+Für `cut` können wir ein Trennzeichen / *Delimiter* definieren, anhand dessen `cut` einen Textstrom in Spalten / *Fields* unterteilt und nur das oder die gewünschten Felder ausgibt.
+
+#### Beispiele
+```bash
+cut -d: -f1 /etc/passwd     # nur die Login-Namen der Benutzer ausgeben
+cut -d: -f7 /etc/passwd     # nur die Shells der Benutzer ausgeben
+cut -d: -f1,7 /etc/passwd   # nur die Shells der Benutzer und deren Shells  ausgeben
+
+cat /etc/passwd | cut -d: -f1 # geht auch, sog. Useless Use of Cat
+```
+### tail
+
+`tail` gibt standardmässig die letzten 10 Zeilen einer Datei aus. 
+
+Die Anzahl der Zeilen kann über die Option `-n` angegeben werden.
+
+Eine sehr nützliche Option von `tail` ist die Option `-f` / `--follow`. Damit können wir Änderungen an einer Datei sozusagen *live* beobachten. Wird oft in Verbindung mit Log-Dateien genutzt, um zu verfolgen, was gerade passiert. 
+
+#### Beispiele
+```bash
+tail -n 5 ~/.bashrc     # die letzten 5 Zeilen der bashrc ausgeben
+tail -f /var/log/apache2/access.log   # Zugriffe auf den Webserver verfolgen
+```
+### head
+
+`head` gibt standardmässig die ersten 10 Zeilen einer Datei aus. 
+
+Die Anzahl der Zeilen kann über die Option `-n` angegeben werden.
+
+#### Beispiele
+```bash
+head -n 5 ~/.bashrc     # die ersten 5 Zeilen der bashrc ausgeben
+```
+### sort
+
+Mit `sort` können wir Textströme (nach bestimmten Kriterien) sortiert ausgeben.
+
+### uniq
+
+Mit `uniq` könne wir direkt aufeinanderfolgende gleiche Zeilen zu einer einzigen zusammenfassen.
+
+Um z.B. alle Dublikate/gleiche Zeilen aus einem Textstrom zu entfernen, kombinieren wir (KISS Prinzip) `uniq` und `sort`
+
+#### Beispiele
+Anzahl der verschiedenen Shells in /etc/passwd zählen
+```bash
+cut -d: -f7 /etc/passwd | sort | uniq | wc -l 
+```
+>[!NOTE] 
+> `sort` hat übrigens die Option `-u` eingebaut, mit der wir gleiches erreichen können.
+
+```bash
+cut -d: -f7 /etc/passwd | sort -u | wc -l 
+```
 
 
 
