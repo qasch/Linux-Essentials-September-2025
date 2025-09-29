@@ -642,8 +642,52 @@ cut -d: -f7 /etc/passwd | sort | uniq | wc -l
 ```bash
 cut -d: -f7 /etc/passwd | sort -u | wc -l 
 ```
+## Prozesse
 
+Ein Prozess ist ein sich in der Auführung befindliches Programm. Ein Programm resultiert immer in mindestens einem Prozess. Prozesse laufen jeweils in einem von anderen unabhängigen "Resourcenraum", haben eine eigene PID, kennen nur die PID des Prozesses, von dem sie gestartet wurden (Elternprozess). Prozesse sind also hierarchisch organisiert. Prozesse können mit dem Kommando `kill` über Signale beeinflusst werden.
 
+Wird der Elternprozess beendet, so werden gleichzeitig alle Kindprozesse mit beendet. Es sei denn, wir treffen bestimmte treffen bestimmte Massnahmen, dass dies nicht passiert (`nohup`, `screen`, `tmux`).
 
+### Vorder- und Hintergrundprozesse
 
+Auf der Shell kann immer nur ein einzelner Prozess im Vordergrund ausgeführt werden, die Shell wird für den Zeitraum der Ausführung *blockiert*, kann also keine anderen Kommandos verarbeiten. Prozesse können mit der Tastenkombination `STRG+Z` angehalten und in den Hintergrund geschickt werden. Mit dem Kommando `bg` kann dieser Prozess dann im Hintergrund fortgesetzt werden, `fg` holt den Prozess in den Vordergrund zurück.
 
+Wir können einen Prozess beim Start aber auch direkt in den Hintergrund schicken und starten (durch Anhängen eines `&`):
+```bash
+ kommando &
+ sleep 200 &
+```
+### Laufende Prozesse anzeigen lassen
+- `ps` : Anzeige aller in der aktuellen Shell laufenden Prozesse
+ - `ps -aux`: Anzeige aller laufende Prozessez auf dem System
+ - `ps -ef`: auch Anzeige aller laufenden Prozesse auf dem System
+ - `ps --forest`: Prozesshirarchie (Baumstruktur) anzeigen
+ - `jobs`: Anzeigen der Hintergrundprozesse
+ - `fg`: letzten/aktuellen/default Job in den Vordergrund holen
+ - `fg %<jobnummer>`: Job mit Jobnummer `<jobnummer>` in den Vordergrund holen
+ - `bg`: Hintergrundprozess fortsetzen
+ - `bg %<jobnummer>`: Hintergrundprozess mit Jobnummer `<jobnummer>` in fortsetzen
+
+### kill
+
+ `kill` sendet Signale an Prozesse. Es muss die PID des Prozesses angegeben werden, Prozessname funktioniert nicht.
+
+ - `kill -s <signal> <PID>`: sendet <signal> an den Prozess mit der PID <PID>
+ - `kill -<signal> <PID>`: sendet <signal> an Prozess mit der PID <PID>
+
+ Die PID eines Prozesses kann auf mehrere Arten ermittelt werden:
+```bash
+ps -ef | grep <prozessname>
+pgrep <prozessname>
+```
+### einige wichtige Signale
+
+- `SIGTERM` (15): Standard, falls kein bestimmtes Signal angegeben wird. Sendet eine "freundliche" Aufforderung an den Prozess, sich doch bitte zu beenden. Im Prozess selbst ist festgelegt, wie er sich beendet, z.B. werden noch gewisse Aufräumarbeiten durchgeführt etc.
+- `SIGINT` (2): sendet eine etwas deutlichere Aufforderung an den Prozess, sich zu beenden, wird bei der Tastenkomnination `STRG+C` (_Cancel_) gesendet
+- `SIGKILL` (9): rabiateste Methode, Signal wird nicht an den Prozess, sondern direkt an den Scheduler gesendet, der daraufhin den entsprechenden Prozess aus seiner Liste löscht, der Prozess somit keine CPU Zeit mehr zur Verfügung gestellt bekommt und somit zwangsläufig beendet wird.
+- `SIGSTOP` (19): hält Prozess an und schickt ihn in den Hintergrund (`STRG+Z`)
+- `SIGCONT` (18): startet angehaltene Prozesse
+
+### pkill und killall
+
+- `pkill`: analog zu oben, `pkill` erwartet aber den Namen bzw. einen Teil des Namens eines Prozesses anstatt der PID. Falls mehrere Prozesse auf den Namen passen, wird das Signal an **alle** diese Prozesse
