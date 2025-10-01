@@ -842,6 +842,142 @@ tar -xf archiv.tar.xz
 - `j` = bzip2  wendet bzip2-Kompression an
 - `J` = xz  wendet xz-Kompression an
 
+## Benutzer und Gruppen
+
+### Benutzer anlegen mit `useradd`
+
+Mit `useradd` (auf allen Linux Systemen verfügbar) können wir Benutzer anlegen.
+
+Obwohl ein Eintrag für ein Home-Verzeichnis in der `/etc/passwd` erzeugt wird, wird dies **nicht** angelegt
+```bash
+useradd <user>
+```
+Die Option `-m` bewirkt, dass unterhalb von `/home` ein Verzeichnis mit dem Namen des Benutzers erzeugt und alle Dateien aus `/etc/skel` dorthin kopiert werden.
+```bash
+useradd -m <user>
+useradd --create-home <user>
+```
+Benutzer eine Login-Shell zuweisen
+```bash
+useradd -s /bin/bash <user>
+useradd --shell /bin/bash <user>
+```
+Kommentarfeld für den vollen Namen des Benutzers und weitere Informationen
+```bash
+useradd -c "Voller Name des Benutzers" <user>
+useradd --comment "Voller Name des Benutzers" <user>
+```
+Neuen User eine bestimmte Primäre Gruppe zuordnen:
+```bash
+useradd -g <primary-group> <user>
+```
+Neuen User einer Liste von zusätzlichen Gruppen zuordnen:
+```bash
+useradd -G <supplementary-group-1>,<supplementary-group-2> <user>
+```
+Standarbeispiel zum Anlegen eines Benutzers:
+```bash
+useradd -m -c "Tux Tuxedo" -s /bin/bash tux
+```
+### Benutzerkonfiguration ändern
+
+Mit dem Kommando `usermod` können wir die Benutzerkonfiguration nachträglich wieder ändern. Die Optionen sind denen von `useradd` sehr ähnlich. 
+
+Ändern der Login Shell von `korni` zur `ksh`:
+
+```bash
+usermod -s /usr/bin/ksh korni
+```
+### Passwörter
+Passwörter werden nicht in der `/etc/passwd` gespeichert, sondern in der Datei `/etc/shadow`. Dafür gibt es mindestens zwei Gründe:
+
+1. Die Datei `/etc/passwd` muss von allen Usern auf dem System lesbar sein, wir wollen aber vermeiden, dass die Passwort-Hashes auslesbar sind
+2. In der Datei `/etc/passwd` werden Informationen über die User gespeichert, in der `/etc/shadow` Informationen über Passwörter (*Separation of Concern*)
+
+Passwörter liegen sind immer gehasht und zusätzlich gesaltet, d.h. dass vor dem Hashen des Passworts eine bestimmte zufällig generierte Zeichenkette vor das Passwort geschrieben und dann der kommplette String (Salt + Passwort) gehasht wird.
+
+So wird zum einen vermieden, dass zwei gleiche Klartextpasswörter den gleichen Hash erhalten, zum anderen werden Attacken über *Rainbow Tables* (riesige Tabellen mit Hash-Werten und den dazugehörigen Klartextpasswörtern) vermieden.
+
+Das Kommando `useradd` kann selbst keine Passwörter generieren! Wir rufen dazu nach dem Erstellen eines neuen Users das Kommando `passwd` auf.
+
+>[!NOTE] Wir können dem Benutzer auch bereits beim Erzeugen ein Passwort mitgeben. 
+
+**Wichtig:** Hier muss ein für das System passender *gesaltener* HASH angegeben werden. Der Eintrag wird exakt so in die `/etc/shadow` eingetragen.
+```bash
+useradd -p "PASSWORDHASH" <user>
+useradd --password "PASSWORDHASH" <user>
+```
+Schwer ist das nicht wirklich - wir können dazu das Kommando `openssl` verweden:
+```bash
+openssl passwd -6 PASSWORT
+```
+Die Option `-6` weist `openssl` an, den für Linux empfohlenen sicheren *SHA-512* Algorithmus zu verwenden.
+
+In einem Rutsch sähe das folgendermassen aus:
+```bash
+useradd -m -c "User mit Passwort" -p $(openssl passwd -6 'My!Secret#Password') -s /bin/bash userwithpass
+```
+### passwd
+Das Kommando ermöglicht die Änderung von Passwörtern. Mit Root-Rechten können so die Passwörter aller Benutzer geändert werden:
+```bash
+passwd <user>
+```
+Als regulärer Benutzer kann man damit sein eigenes Paswsort ändern:
+```bash
+passwd
+```
+### chsh
+Mit `chsh` kann ein Benutzer seine Login Shell ändern bzw. kann `root` die Login Shells jedes Users ändern.
+```bash
+chsh -s /bin/bash
+```
+### adduser
+
+`adduser` ist ein Perl-Skript, welches u.a. die Kommandos  `useradd` und `passwd` ausführt. Es ist *interaktiv*, wir brauchen keine Optionen zu übergeben, bestimmte Einstellungen werden abgefragt, vor allem fragt `adduser` direkt nach einem Passwort für den neuen Benutzer. Es sind andere Default-Werte gesetzt als bei `useradd`, z.B. die `bash` als Login-Shell.
+
+Dieses Kommando ist aber standardmässig nur auf Debian-basierten Distributionen vorinstalliert.
+
+#### Relevante Dateien
+Beim Anlegen von Benutzern passiert übrigens nur folgendes:
+
+- Ein Eintrag in der `/etc/passwd` mit den Benutzerinformationen wird erzeugt
+- Das Passwort wird in die `/etc/shadow` eingetragen
+- Die primäre Gruppe wird zur `/etc/group` hinzugefügt (und eventuell andere Gruppenzugehörigkeiten angepasst)
+- In der `/etc/gshadow` wird ein Eintrag ohne Passwort erzeugt (diese Datei bzw. Gruppenpasswörter werden eh nicht genutzt)
+
+Das war's. Nichts weiter. Keine Magie, nichts im Hintergrund. Nur Veränderung von Textdateien. Das ist ein gutes Beispiel dafür, wie die Konfiguration eines Linux System generell funktioniert. 
+
+### Gruppen
+
+Mit Gruppen können mehrere Benutzer zusammengefasst und ihnen gemeinsame Berechtigungen auf Dateien und Verzeichnisse gegeben werden.
+
+Im Unterschied zu Windows können Gruppen nur einzelne Benutzer enthalten, keine weiteren Gruppen.
+
+Für die Anzeige der Gruppenzugehörigkeiten kann man die Kommandos `groups` oder `id` benutzen.
+
+#### Primäre Gruppe
+Jeder Benutzer hat genau eine primäre Gruppe. Diese ist in `/etc/passwd` eingetragen. In der Regel hat sie den gleichen Namen wie der Benutzer. Sie ist nötig, da z.B. beim Erstellen von Dateien diese einem Benutzer und einer Gruppe zugewiesen werden.
+
+#### Sekundäre Gruppen
+Ein Benutzer kann aber auch mehreren zusätzlichen Gruppen angehören. Die Zugehörigkeiten sind in der `/etc/group` eingetragen.
+
+### Gruppe erstellen:
+Auf allen Linux Systemen existiert das Kommando `groupadd`
+```bash
+groupadd <gruppe>
+```
+### Benutzer einer Gruppe hinzufügen:
+Auch die Gruppenzugehörigkeiten passen wir mit dem Kommando `usermod` an:
+```bash
+usermod -g <primary-group> <user>
+usermod -G <absolute-list-of-supplementary-groups> <user>
+usermod -aG <group1>,<group2>,<group3> <user>
+```
+Vorsicht mit der Option `-G`, diese erwartet eine absolute Liste von Gruppen, die der User angehören soll. Gehört der User einer Gruppe an, die hier nicht genannt ist, wird er aus dieser Gruppen entfernt.
+
+Möchten wir einen User einer Gruppe hinzufügen, die bestehenden Gruppenzugehörigkeiten aber nicht verändern, nutzen wir zusätzlich die Opione `-a` (steht für `--append`).
+
+TODO
 
 
 
