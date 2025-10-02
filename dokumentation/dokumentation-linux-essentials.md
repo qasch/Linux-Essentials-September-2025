@@ -489,6 +489,7 @@ Es gibt drei Standardkanäle unter Linux:
 | *Standareingabekanal*  | `stdin` | 0 |
 | *Standardausgabekanal*|  `stdout` | 1 |
 | *Standardfehlerkanal*  | `stderr` | 2 |
+
 Jeder Prozess der gestartet wird, wird mit diesen drei Standardkanälen verbunden. Über diese Kanäle erhält der Prozess Daten und gibt sie auch wieder aus. So können Ein- und Ausgaben unabhängig voneinander verarbeitet und auch umgeleitet werden.
 
 Die Kanäle jedes Prozesses, der in einer Shell gestartet wird, sind automatisch mit der Shell verbunden.
