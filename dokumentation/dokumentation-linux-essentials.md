@@ -94,6 +94,34 @@ Eine Liste aller bisher eingegebenen Kommandos
 
 ## Dateioperationen
 
+### Verzeichnisse erstellen - mkdir
+Mit dem Kommando `mkdir` (*make directory*) können wir Verzeichnisse erstellen.
+```bash
+mkdir <name-des-verzeichnisses>
+mkdir <pfad-zum-verzeichniss>
+```
+### Dateien erstellen - touch
+
+Dateien können auf vielfältige Art und Weise erstellt werden. Ein einfacher Weg, leere Dateien zu erstellen, ist mit dem Kommando `touch`.
+```bash
+touch <name-der-datei>
+touch <name-der-datei-1> <name-der-datei-2> ...
+touch <pfad-zur-datei>
+```
+Dateien können aber auch z.B. mit einem Editor wie `nano` erstellt werden.
+```bash
+nano <name-der>
+```
+### Editor nano
+
+`nano` ist ein einfacher Editor, der auf den meisten Linux Distributionen vorinstalliert ist. Als Hilfe zur Bedienung wird unten ein Menü mit Tastenkürzeln angezeigt. Hier bedeutet das Zeichen `^` die Taste `STRG`.
+
+Einige wichtige Tastenkombinationen:
+
+- `STRG+O` Datei speichern unter...  (Name kann/muss angegeben werden)
+- `STRG+S` Datei speichern (unter dem gleichen Namen)
+- `STRG+X` Editor verlassen (bei ungespeicherten Änderungen werden wir gefragt, ob wir diese speichern möchten)
+
 ### Dateien und Verzeichnisse kopieren - cp
 
 Dateien und Verzeichnisse können mit dem Kommando `cp` (*copy*) kopiert werden.
@@ -433,6 +461,25 @@ Die einzelnen Versionen der Release basierten Distributionen werden über einen 
 
 Es gibt sogar Versionen von Ubuntu und RHEL, die über mehr als 10 Jahre lang (Sicherheits-)Updates erhalten (*ELS - Extended Lifecycle Support* bzw. *ESM - Extended Security Maintenance*), dann aber auch (teilweise) kostenpflichtig sind.
 
+## Dateisystembaum / Verzeichnisstruktur
+
+| Verzeichnis | Bedeutung | enthält |
+| ----------- |:-------------: | --------- |
+| `/bin` | *binary* |  ausführbare Dateien, die von allen Benutzern ausgeführt werden können. Normalerweise ein *Symlink* auf `/usr/bin`. |
+| `/sbin` | *superuser binary* |  auch ausführbare Dateien, die allerdings nur von `root` genutzt werden können. Auch ein Symlink auf `/usr/sbin`. |
+| `/boot` | |  den/die Linux Kernel (`vmlinuz-6.1.0-25.amd64`), die zugehörige Initiale RAM Disk (`initrd.img-6.1.0-25-amd64`), weitere für den Bootvorgang wichtige Dateien und die Konfiguration des Bootloaders, z.B. `grub`. |
+| `/dev` | *devices* |  *Gerätedateien*, z.B. für die vorhanden Speichermedien und Partitionen, `/dev/null`, `/dev/random`, die Filedescriptoren `stdin`, `stdout`, `stderr`, Terminals etc. Dieses Verzeichnis wird automatisch vom Dienst `udev` (*Userspace Dev*) überwacht und gepflegt. |
+| `/etc` | *et cetera* / *etsy* |  systemweite Konfigurationsdateien. Diese können für gewisse Programme durch die benutzerspezifischen Konfigurationsdateien (im Heimatverzeichnis der Benutzer) überschrieben werden (`/etc/bash.bashrc` -> `~/.bashrc`). |
+| `/home` | | Heimatverzeichnisse der regulären Benutzer |
+| `/media` `/mnt` | *mount* |  Verzeichnisse für die *Mountpoints* weiterer/externer Datenträger |
+| `/opt` | *optional* | hier können Pakete ihre Dateien ablegen, die nicht über die Standardpaketquellen installiert wurden |
+| `/proc` | *processes* |  Dateien/Informationen über das laufende System: laufende Prozesse, Hardware, Kernelkonfiguration. Existiert nur im RAM, ist ein sog. *virtuelles* oder *Pseudodateisystem* |
+| `/root` | | Heimatverzeichnis des *Superusers* `root` |
+| `/sys` | *system* | ähnlich wie `/proc` bzw. eine nachträgliche Erweiterung,  vor allem Dateien/Informationen zur Hardware, auch ein *virtuelles-* bzw. *Pseudodateisystem*. |
+| `/tmp` | *temp* |  temporäre Dateien |
+| `/usr` | *Unix System Resources* |  Verzeichnisse für die ausführbaren Dateien, Libraries, Source Code, Dokumentationen etc. |
+| `/var` | *variable* |  viele wichtige Dateien wie z.B. *Logdateien* (`/var/log`), E-Mails (`/var/mail`), Cache (`/var/cache`) ... |
+
 # Textströme und Standardkanäle
 
 Es gibt drei Standardkanäle unter Linux:
@@ -449,23 +496,6 @@ Die Kanäle jedes Prozesses, der in einer Shell gestartet wird, sind automatisch
 Durch dieses Konzept können wir durch die Kombination simpler Kommandos komplexe Aufaben lösen (-> *Kommandopipelines*) 
 
 Wir könne so z.B. auch Ausgaben von Kommandos in Dateien umleiten (-> *Redirects*).
-
-## KISS Prinzip
-
-- "Keep it stupid simple"
-- "Keep it super simple"
-- "Keep it simple, stupid!"
-
-## UNIX Philosophie
-Die Unix-Philosophie ist ein Satz von Prinzipien für Software-Design, die ursprünglich in den 1970er Jahren mit dem Unix-Betriebssystem entwickelt wurden. Sie betont Einfachheit, Modularität und Wiederverwendbarkeit.
-
-Douglas McIlroy, der Erfinder der Unixpipes, fasste die Philosophie folgendermaßen zusammen:
-
-- Schreibe Computerprogramme so, dass sie nur eine Aufgabe erledigen und diese gut machen.
-- Schreibe Programme so, dass sie zusammenarbeiten.
-- Schreibe Programme so, dass sie Textströme verarbeiten, denn das ist eine universelle Schnittstelle.
-
-> "Write programs that do one thing and do it well."
 
 ### Redirects
 
@@ -506,6 +536,36 @@ ls mich-gibts/ mich-gibts-nicht/ &> ausgabe-und-fehler.txt
 ```
 >[!NOTE]
 > Verkürzte Schreibweise
+
+### /dev/null
+
+`/dev/null` ist soetwas wie das *Schwarze Loch* eines Linux Systems. Alles was wir dorthin leiten, verschwindet. Wir nutzen einen Redirect nach `/dev/null` ganz bewusst, um z.B. Fehlermeldungen eines Kommandos zu unterdrücken. Oder auch in Skripten, um den normalen Output eines Kommandos zu unterdrücken.
+
+#### Beispiel find und 2>/dev/null
+Wir wollen als regulärer Benutzer mit `find` unser gesamtes Dateisystem nach `.pdf` Dateien durchsuchen. Mit folgendem Kommando erhalten wir aber sehr viele `Permission Denied` Fehlermeldungen:
+```bash
+find / -name "*.pdf"
+```
+Wir leiten also ganz bewusst alle Fehler bzw. `stderr` nach `/dev/null` um die Ergebnisse (auf `stdout`) klarer sehen zu können:
+```bash
+find / -name "*.pdf" 2>/dev/null
+```
+## KISS Prinzip
+
+- "Keep it stupid simple"
+- "Keep it super simple"
+- "Keep it simple, stupid!"
+
+## UNIX Philosophie
+Die Unix-Philosophie ist ein Satz von Prinzipien für Software-Design, die ursprünglich in den 1970er Jahren mit dem Unix-Betriebssystem entwickelt wurden. Sie betont Einfachheit, Modularität und Wiederverwendbarkeit.
+
+Douglas McIlroy, der Erfinder der Unixpipes, fasste die Philosophie folgendermaßen zusammen:
+
+- Schreibe Computerprogramme so, dass sie nur eine Aufgabe erledigen und diese gut machen.
+- Schreibe Programme so, dass sie zusammenarbeiten.
+- Schreibe Programme so, dass sie Textströme verarbeiten, denn das ist eine universelle Schnittstelle.
+
+> "Write programs that do one thing and do it well."
 
 ## Kommandopipelines
 Kommandopipelines sind ein mächtiges Werkzeug, mit dem sich erst die ganze Stärke der Kommandozeile nutzen lässt.
@@ -842,6 +902,30 @@ tar -xf archiv.tar.xz
 - `j` = bzip2  wendet bzip2-Kompression an
 - `J` = xz  wendet xz-Kompression an
 
+## Benutzerkonten
+
+### Root Acount
+
+Der Benutzer `root` ist der *SuperUser* eines Linux Systems. Er ist der einzige Benutzer, welcher volle Rechte auf das System hat, also alles darf. Er muss auf jedem System existieren, damit dieses lauffähig ist, beispielsweise um während des Bootvorgangs einzelne Dienste zu starten usw.
+
+### Reguläre Benutzer
+
+Alle *regulären* Benutzer haben **eingeschränkte** Rechte. Sie dürfen z.B. nicht alle Kommandos ausführen oder generell irgendwelche Änderungen am System vornehmen. 
+
+Im Hintergrund wird das mehr oder weniger alles über die Berechtigungen an Dateien geregelt.
+
+Reguläre Benutzer können sich am System anmelden und interaktiv Kommandos ausführen. Dazu haben sie in der `/etc/passwd` eine *Login Shell* zugewiesen.
+
+### Systembenutzer / Servicenutzer / Pseudobenutzer
+
+Es gibt eine weitere Bentuzergruppe mit eingeschränkten Rechten. Das fällt uns auf, wenn wir die Datei `/etc/passwd` inspizieren. Die Mehrzahl der Benutzer haben wir gar nicht selbst angelegt, sie wurden automatisch vom System erzeugt, als bestimmte Dienste/Services installiert wurden.
+
+Genau das ist der Sinn dieser Benutzer: So können bestimmte Dienste bzw. Prozesse mit deren Berechtigungen ausgeführt werden um die Sicherheit des Systems zu erhöhen. Ein kompromittierter Dienst erhält so also nicht direkt Zugriff auf das gesamte System.
+
+Beispiel: `www-data` für Webserver wie *Apache oder Nginx* - selbst wenn ein Angreifer den Webserver übernimmt, kann er nicht auf andere Systemdateien zugreifen.
+
+Pseudobenutzer haben keine Login-Shell, ihnen wird `/usr/sbin/nologin` zugewiesen. Sie können sich also nicht am System anmelden und Kommandos ausführen.
+
 ## Benutzer und Gruppen
 
 ### Benutzer anlegen mit `useradd`
@@ -977,9 +1061,40 @@ Vorsicht mit der Option `-G`, diese erwartet eine absolute Liste von Gruppen, di
 
 Möchten wir einen User einer Gruppe hinzufügen, die bestehenden Gruppenzugehörigkeiten aber nicht verändern, nutzen wir zusätzlich die Opione `-a` (steht für `--append`).
 
-## TODO
+Damit Gruppenzugehörigkeiten gültig werden, muss die Datei `/etc/group` neu eingelesen werden. Dies geschieht z.B. wenn der Benutzer muss sich neu anmeldet bzw. eine neue Login-Shell startet. 
+
+Um die Gruppenzugehörigkeit in der aktuellen Shell zu aktualisieren, kann auch das Kommando `newgrp <gruppe>` genutzt werden.
 
 ## sudo 
+
+Mittels `sudo` (*Superuser do*) können Kommandos als ein anderer Benutzer ausgeführt werden. Standardmässig wird es genutzt, um als normaler Benutzer Root-Rechte zu erlangen, ohne sich als User `root` anmelden zu müssen.
+
+#### Vorteile von `sudo`
+
+- Benutzer gibt sein **eigenes** Passwort ein, nicht das von `root`
+- Passwort von `root` muss nicht geteilt werden (sehr sinnvoll bei mehreren Administratoren)
+- sehr fein granulare Rechtevergabe möglich: z.B. als ein bestimmter Bentuzer nur bestimmte Kommandos ausführen etc.
+- kann auch so konfiuriert werden, dass gar kein Passwort eingegeben werden muss (nur unter ganz bestimmten Bedingungen sinnvoll)
+- das eingegebene Passwort wird für eine gewisse Zeit (15 min) gespeichert und muss nicht immer wieder eingegeben werden und muss nicht immer wieder eingegeben werden
+- alle `sudo` Kommandos werden in `/var/log/autho.log` protokolliert und sind zusätzlich in der History der jeweiligen Benutzer
+- es wird vermieden, dass Benutzer aus Faulheit dauerhaft eine Root-Shell offen haben
+
+#### Nachteile von `sudo`
+- `sudo` ist Software und Software ist **nie fehlerfrei**
+- Sicherheitslücken in `sudo` könnten ausgenutzt werden
+- könnte falsch/unsicher konfiuriert werden
+
+#### Konfiguration
+Generell erfolgt die Konfiguration in der Datei `/etc/sudoers`. Diese sollte **nie direkt** sondern **immer** mit dem Kommando `visudo` bearbeitet werden.
+
+Der einfachste Weg, einem User Root-Rechte mittels `sudo` zu gewähren, besteht darin, diesen User der Gruppe `sudo` bzw. `wheel` (je nach Distribution) hinzuzufügen.
+
+Von einem Eintrag des/der User in die `/etc/sudoers` ist abzuraten, es sei denn, `sudo` soll feiner konfiuriert werden
+
+>[!NOTE] 
+> Falls man das vorherige Kommando erneut mit Root-Rechten ausführen will ist das Kommando `sudo !!` sehr nützlich. 
+> 
+> Das erste `!` steht für die History Expansion, das zweite für das vorherige Kommando.
 
 ## Berechtigungen
 
@@ -1111,6 +1226,44 @@ drwxrwxrwt 8 root root 4096 Feb 20 09:30 /tmp
 ```
 So ist es einem regulären Benutzer nicht möglich, Dateien eines anderen Benutzers zu ändern oder zu löschen.
 
+## Links
+
+### Symbolische Links / Symlinks
+Sind im Prinzip das Gleiche wie Verknüpfungen unter Windows. Ein Symlink verweist auf eine andere Datei oder gesamtes Verzeichnis, genauer gesagt *auf den Pfad* zu einer Datei oder Verzeichnis. Es ist eine zusätzliche Inode, die auf ein Ziel verweist. Symlinks können auch über Partitionsgrenzen hinaus bestehen. Wird das Original gelöscht, bleibt ein sog. *toter* oder *verwaister* Link zurück, der nicht mehr funktioniert.
+```bash
+ln -s original.txt symlink.txt
+ln -s originalverzeichnis symlinkverzeichnis
+```
+Symlinks werden z.B. von Webservern genutzt: 
+- `/etc/apache2/sites-available` -> alle vorhandenen Konfigurationsdateien für Websites (Original)
+- `/etc/apache2/sites-enabled` -> nur die *aktiven* Konfigurationsdateien für Websites (Symlink)
+
+### Hardlinks
+Hardlinks sind eigentlich lediglich Dateinamen. Mehrere Dateinamen bzw. Hardlinks können auf den gleichen Bereich im Speicher bzw. die gleiche Datei zeigen. Ein Hardlink ist nicht mehr vom Original zu unterscheiden, er hat die selbe Inode wie das Original. Wird das "Original" gelöscht, ist die Datei weiterhin über den "Link" bzw. jetzt neuen Dateinamen zu erreichen.
+
+Hardlinks funktionieren daher natürlich **nicht** auf Verzeichnisse oder über Partitionsgrenzen hinaus.
+```bash
+ln original.txt hardlink.txt
+```
+Man kann die Anzahl der Hardlinks mit `ls -l` sehen (Spalte direkt nach den Berechtigungen) bzw. in der Ausgabe des Kommandos `stat`:
+```bash
+ln file1.txt hardlink-file1
+ls -l file1.txt
+
+-rw-r--r-- 2 tux tux 5 Feb 12 13:09 file1.txt
+
+stat file1.txt
+
+  File: file1.txt
+  Size: 5         	Blocks: 8          IO Block: 4096   regular file
+Device: 254,1	Inode: 1177496     Links: 2
+Access: (0644/-rw-r--r--)  Uid: ( 1000/     tux)   Gid: ( 1000/     tux)
+Access: 2025-02-17 08:55:39.987803189 +0100
+Modify: 2025-02-12 13:09:04.146349786 +0100
+Change: 2025-02-24 17:31:49.220713220 +0100
+ Birth: 2025-02-12 11:45:38.078409807 +0100
+```
+Hardlinks werden im System verwendet, um Speicherplatz zu sparen z.B. für bestimmte Systemkommandos. Auch nutzen manche Backup Lösungen Hardlinks um inkrementelle Backups zu erstellen.
 
 
 
