@@ -496,7 +496,7 @@ Die Kanäle jedes Prozesses, der in einer Shell gestartet wird, sind automatisch
 
 Durch dieses Konzept können wir durch die Kombination simpler Kommandos komplexe Aufaben lösen (-> *Kommandopipelines*) 
 
-Wir könne so z.B. auch Ausgaben von Kommandos in Dateien umleiten (-> *Redirects*).
+Wir können so z.B. auch Ausgaben von Kommandos in Dateien umleiten (-> *Redirects*).
 
 ### Redirects
 
@@ -895,13 +895,13 @@ tar -xf archiv.tar.xz
 ```
 #### Erklärung der Optionen:
 
-- `c` = create  erstellt ein neues Archiv
-- `x` = extract  entpackt ein Archiv
-- `f` = file  gibt den Dateinamen des Archivs an (immer direkt danach)
+- `-c`, `--create`  erstellt ein neues Archiv
+- `-x`, `--extract`  entpackt ein Archiv
+- `-f`, `--file`  gibt den Dateinamen des Archivs an (immer direkt danach)
  
-- `z` = gzip  wendet gzip-Kompression an
-- `j` = bzip2  wendet bzip2-Kompression an
-- `J` = xz  wendet xz-Kompression an
+- `-z`, `--gzip`  wendet gzip-Kompression an
+- `-j`, `--bzip2`  wendet bzip2-Kompression an
+- `-J`, `--xz`  wendet xz-Kompression an
 
 ## Benutzerkonten
 
@@ -985,7 +985,8 @@ So wird zum einen vermieden, dass zwei gleiche Klartextpasswörter den gleichen 
 
 Das Kommando `useradd` kann selbst keine Passwörter generieren! Wir rufen dazu nach dem Erstellen eines neuen Users das Kommando `passwd` auf.
 
->[!NOTE] Wir können dem Benutzer auch bereits beim Erzeugen ein Passwort mitgeben. 
+>[!NOTE] 
+> Wir können dem Benutzer auch bereits beim Erzeugen ein Passwort mitgeben. 
 
 **Wichtig:** Hier muss ein für das System passender *gesaltener* HASH angegeben werden. Der Eintrag wird exakt so in die `/etc/shadow` eingetragen.
 ```bash
