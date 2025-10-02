@@ -1124,7 +1124,7 @@ Der folgende Auszug von `ls -l file1.txt` sagt folgendes aus:
 `x` (*eXecute*) -> Verzeichnis betreten 
 
 >[!IMPORTANT] 
-> Es macht **keinen wirklichen Sinn** wenn das Execute Bit bei Verzeichnissen **nicht** gesetzt ist. Dann wird alles etwas seltsam... Wir brauchen dieses Bit, damit Verzeichnisse wie gewünscht funktionieren.
+> Es macht **keinen wirklichen Sinn** wenn das *Execute Bit* bei Verzeichnissen **nicht** gesetzt ist. Dann wird alles etwas seltsam... Wir brauchen dieses Bit, damit Verzeichnisse wie gewünscht funktionieren.
 
 ### Symbolische Rechtevergabe
 Hierbei werden *Symbole* für die Berechtigungen verwendet. Diese Art der Rechtevergabe ist sehr intuitiv und eignet sich besonders dafür, einzelne Berechtigungen hinzuzufügen oder zu entfernen, ohne die bestehenden Berechtigungen zu verändern. Es ist auch einfach, diese Vorgänge wieder rückgängig zu machen.
