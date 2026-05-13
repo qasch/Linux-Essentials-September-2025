@@ -31,3 +31,20 @@
   - [ ] 6.5.2	5.2 Creating Users and Groups (weight: 2)
   - [ ] 6.5.3	5.3 Managing File Permissions and Ownership (weight: 2)
   - [ ] 6.5.4	5.4 Special Directories and Files (weight: 1)
+
+## Lizenz
+
+Die Inhalte dieses Repositories stehen unter der
+[Creative Commons Attribution-NonCommercial 4.0 International Lizenz (CC BY-NC 4.0)](https://creativecommons.org/licenses/by-nc/4.0/).
+
+[![CC BY-NC 4.0](https://licensebuttons.net/l/by-nc/4.0/88x31.png)](https://creativecommons.org/licenses/by-nc/4.0/)
+
+Die Nutzung für private Lernzwecke und nicht-kommerzielle Weitergabe ist erlaubt.
+
+Nicht erlaubt ist insbesondere:
+- Verwendung in kostenpflichtigen Trainings
+- Weiterverkauf
+- kommerzielle Nutzung durch Schulungsanbieter
+
+Lizenzdetails:
+https://creativecommons.org/licenses/by-nc/4.0/
